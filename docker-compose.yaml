@@ -1,0 +1,29 @@
+services:
+  minkult-db:
+    image: postgres:latest
+    profiles: [ "prod", "dev" ]
+    container_name: minkult-db
+    restart: "unless-stopped"
+    ports:
+      - "5555:5432"
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data/pgdata
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=app
+      - PGDATA=/var/lib/postgresql/data/pgdata
+
+  api:
+    image: vasilsemen04/minkult-parser:latest
+    profiles: [ "prod" ]
+    container_name: api
+    ports:
+      - "8888:8000"
+    volumes:
+      - ./app:/app/app
+      - ./poetry.lock:/app/poetry.lock
+      - ./pyproject.toml:/app/poetry.toml
+      - ./Makefile:/app/Makefile
+    depends_on:
+      - minkult-db
